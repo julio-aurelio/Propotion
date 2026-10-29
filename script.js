@@ -341,6 +341,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const phaseTitleEl = document.getElementById("phase-title");
     const playerRankEl = document.getElementById("player-rank");
     const phaseBadgeEl = document.getElementById("phase-badge");
+    const missionBadgeEl = document.getElementById("mission-badge");
+    const claimLabelEl = document.getElementById("claim-label");
     const missionTitleEl = document.getElementById("mission-title");
     const missionDescEl = document.getElementById("mission-desc");
     const missionRewardTextEl = document.getElementById("mission-reward-text");
@@ -353,8 +355,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const currentPotionRatioEl = document.getElementById("current-potion-ratio");
 
     const targetQtyEl = document.getElementById("target-quantity-display");
-    const targetMinusBtn = document.getElementById("target-minus");
-    const targetPlusBtn = document.getElementById("target-plus");
 
     const ingredientRowsContainer = document.getElementById("ingredient-rows");
     const totalPartsEl = document.getElementById("total-parts");
@@ -364,9 +364,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const toastFeedback = document.getElementById("toast-feedback");
     const toastMsg = document.getElementById("toast-message");
     const inventoryGrid = document.getElementById("inventory-grid");
-
-    const mathFormulaEl = document.getElementById("math-formula");
-    const codeFormulaEl = document.getElementById("code-formula");
 
     const potionStage = document.getElementById("potion-stage");
     const potionPngBase = document.getElementById("potion-png-base");
@@ -381,8 +378,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const introTimeline = gsap.timeline({ defaults: { ease: "power3.out" } });
     introTimeline
-        .from(logoImg, { duration: 1.3, opacity: 0, scale: 0.85, y: -20 })
-        .from(".btn-group .btn", { duration: 0.8, opacity: 0, y: 25, scale: 0.9, stagger: 0.2 }, "-=0.5");
+        .from(logoImg, { duration: 1.3, opacity: 0, scale: 0.85, y: -20 });
 
     // Inicializa a primeira fase na carga para garantir renderização imediata de todos os painéis
     loadPhase(0);
@@ -401,18 +397,18 @@ document.addEventListener("DOMContentLoaded", () => {
                     { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: "power2.out" }
                 );
 
-                loadPhase(0);
+                loadPhase(currentPhaseIndex);
             }
         });
     }
 
     function openModal() {
         storyModal.classList.remove("hidden");
-        gsap.fromTo(".modal-card", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4 });
+        gsap.fromTo("#story-modal .modal-card", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.4 });
     }
 
     function closeModal() {
-        gsap.to(".modal-card", { opacity: 0, scale: 0.8, duration: 0.3, onComplete: () => storyModal.classList.add("hidden") });
+        gsap.to("#story-modal .modal-card", { opacity: 0, scale: 0.8, duration: 0.3, onComplete: () => storyModal.classList.add("hidden") });
     }
 
     btnStart.addEventListener("click", startGame);
@@ -494,6 +490,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ----------------------------------------------------------------------
     function showToast(htmlMessage, isSuccess) {
         if (toastTimeout) clearTimeout(toastTimeout);
+        gsap.killTweensOf(toastFeedback);
         toastMsg.innerHTML = htmlMessage;
         toastFeedback.className = `toast-feedback ${isSuccess ? "toast-success" : "toast-error"}`;
 
@@ -522,7 +519,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (phaseTitleEl) phaseTitleEl.textContent = currentPhaseObj.title;
         if (playerRankEl) playerRankEl.textContent = `${currentPhaseObj.rank} • Nível ${currentPhaseObj.phase}`;
-        if (phaseBadgeEl) phaseBadgeEl.textContent = `FASE ${currentPhaseObj.phase} • ${currentPhaseObj.rank.toUpperCase()}`;
+        if (phaseBadgeEl) phaseBadgeEl.textContent = `FASE ${currentPhaseObj.phase}`;
+        if (missionBadgeEl) missionBadgeEl.textContent = `FASE ${currentPhaseObj.phase} • ${currentPhaseObj.rank.toUpperCase()}`;
+        btnBrew.disabled = false;
         
         const ratioString = recipe.ingredients.map(i => i.base).join(" : ");
         if (missionTitleEl) missionTitleEl.textContent = recipe.name;
@@ -542,18 +541,6 @@ document.addEventListener("DOMContentLoaded", () => {
         playerInputs = new Array(recipe.ingredients.length).fill(0);
 
         renderIngredientCards(recipe.ingredients);
-
-        const mult2Str = recipe.ingredients.map(i => i.base * 2).join(" : ");
-        const mult4Str = recipe.ingredients.map(i => i.base * 4).join(" : ");
-        if (mathFormulaEl) mathFormulaEl.textContent = `${ratioString} = ${mult2Str} = ${mult4Str}`;
-
-        if (codeFormulaEl) {
-            if (recipe.ingredients.length === 2) {
-                codeFormulaEl.textContent = `qtdA * ${recipe.ingredients[1].base} === qtdB * ${recipe.ingredients[0].base}`;
-            } else {
-                codeFormulaEl.textContent = `Para cada ingrediente i: (qtd[0] * base[i]) === (qtd[i] * base[0])`;
-            }
-        }
 
         renderRecipeList();
         updateCounters();
@@ -581,7 +568,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.querySelectorAll(".btn-ing-minus").forEach(btn => {
             btn.addEventListener("click", (e) => {
-                const idx = parseInt(e.target.dataset.index);
+                const idx = parseInt(e.currentTarget.dataset.index);
                 if (playerInputs[idx] > 0) {
                     playerInputs[idx]--;
                     updateCounters();
@@ -591,7 +578,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         document.querySelectorAll(".btn-ing-plus").forEach(btn => {
             btn.addEventListener("click", (e) => {
-                const idx = parseInt(e.target.dataset.index);
+                const idx = parseInt(e.currentTarget.dataset.index);
                 playerInputs[idx]++;
                 updateCounters();
             });
@@ -637,7 +624,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             const activeItem = recipeListEl.querySelector(".recipe-item.active");
             if (activeItem && activeItem.offsetParent) {
-                activeItem.scrollIntoView({ behavior: "smooth", block: "nearest" });
+                recipeListEl.scrollTo({ top: activeItem.offsetTop - recipeListEl.offsetTop - 8, behavior: "smooth" });
             }
         }, 150);
     }
@@ -675,13 +662,6 @@ document.addEventListener("DOMContentLoaded", () => {
         potionLiquidFill.style.background = `linear-gradient(180deg, ${recipe.color} 0%, #150624 100%)`;
         potionPngBase.style.filter = `drop-shadow(0 0 40px ${recipe.color})`;
     }
-
-    targetMinusBtn.addEventListener("click", () => {
-        if (targetQuantity > 2) { targetQuantity--; updateCounters(); }
-    });
-    targetPlusBtn.addEventListener("click", () => {
-        targetQuantity++; updateCounters();
-    });
 
     // ----------------------------------------------------------------------
     // 9. FUNÇÃO DO DESAFIO: VERIFICAÇÃO GENÉRICA DE PROPORÇÃO
@@ -765,6 +745,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const isTotalValid = totalMix === targetQuantity;
 
         if (isRatioValid && isTotalValid) {
+            btnBrew.disabled = true;
             const playerRatioStr = playerInputs.join(" : ");
             const baseRatioStr = recipe.ingredients.map(i => i.base).join(" : ");
 
@@ -835,16 +816,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function openRewardModal(phaseObj) {
         rewardMissionName.textContent = `Você dominou a ${phaseObj.recipe.name}!`;
-        rewardTextDesc.innerHTML = `<span class="reward-svg-icon">${getIconHTML("trofeu")}</span> +150 XP &bull; Fase ${phaseObj.phase + 1} Desbloqueada!`;
+        const nextPhase = phases[phases.indexOf(phaseObj) + 1];
+        rewardTextDesc.textContent = nextPhase
+            ? `+150 XP • Fase ${nextPhase.phase} Desbloqueada!`
+            : `+150 XP • Você completou todas as fases!`;
+        claimLabelEl.textContent = nextPhase ? "AVANÇAR PARA A PRÓXIMA FASE" : "CONTINUAR";
         rewardModal.classList.remove("hidden");
         gsap.fromTo(".reward-card", { opacity: 0, scale: 0.8 }, { opacity: 1, scale: 1, duration: 0.5, ease: "back.out(1.5)" });
     }
 
     btnClaimReward.addEventListener("click", () => {
         rewardModal.classList.add("hidden");
-        if (currentPhaseIndex + 1 < phases.length) {
-            loadPhase(currentPhaseIndex + 1);
-        }
+        loadPhase(Math.min(currentPhaseIndex + 1, phases.length - 1));
     });
 
 });

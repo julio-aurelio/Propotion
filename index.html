@@ -135,7 +135,7 @@
             </div>
 
             <button id="btn-claim-reward" class="btn btn-primary btn-hero-brew btn-reward-claim">
-                <span class="svg-icon-sparkle"></span> AVANÇAR PARA A PRÓXIMA FASE
+                <span class="svg-icon-sparkle"></span> <span id="claim-label">AVANÇAR PARA A PRÓXIMA FASE</span>
             </button>
         </div>
     </div>
@@ -179,7 +179,7 @@
                 </div>
             </div>
             <div class="mission-info">
-                <span class="mission-badge" id="phase-badge">FASE 1 &bull; APRENDIZ DE ALQUIMIA</span>
+                <span class="mission-badge" id="mission-badge">FASE 1 &bull; APRENDIZ DE ALQUIMIA</span>
                 <h4 id="mission-title">POÇÃO DE CURA</h4>
                 <p id="mission-desc">Prepare 10 unidades mantendo a proporção 2 : 3.</p>
             </div>
@@ -220,9 +220,7 @@
                     <div class="target-controls">
                         <span>Produzir</span>
                         <div class="target-selector">
-                            <button id="target-minus" class="btn-step">-</button>
                             <span id="target-quantity-display" class="target-qty">10</span>
-                            <button id="target-plus" class="btn-step">+</button>
                         </div>
                         <span>unidades totais</span>
                     </div>
@@ -265,27 +263,9 @@
                 </div>
             </main>
 
-            <!-- PAINEL DIREITO: DICA & INVENTÁRIO -->
+            <!-- PAINEL DIREITO: INVENTÁRIO -->
             <aside class="panel info-panel">
                 
-                <!-- DICA DO MAGO -->
-                <div class="wizard-tip-card">
-                    <div class="tip-header">
-                        <span class="wizard-icon svg-icon-wand"></span>
-                        <h4>DICA DO MAGO</h4>
-                    </div>
-                    <p class="tip-text" id="wizard-tip-text">
-                        "Para criar uma poção perfeita, mantenha a mesma proporção da receita original!"
-                    </p>
-                    <div class="math-explainer">
-                        <p class="math-formula" id="math-formula">2 : 3 = 4 : 6 = 8 : 12</p>
-                        <p class="math-subtext" id="math-subtext">
-                            Multiplicação Cruzada / Regra de Três N-Dimensional:<br>
-                            <code id="code-formula">qtdA * 3 === qtdB * 2</code>
-                        </p>
-                    </div>
-                </div>
-
                 <!-- INVENTÁRIO DE POÇÕES -->
                 <div class="inventory-card">
                     <h4><span class="svg-icon-backpack"></span> INVENTÁRIO DE POÇÕES</h4>
